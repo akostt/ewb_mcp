@@ -1,0 +1,17 @@
+{
+  "name": "ewb512-schematics",
+  "version": "1.0.0",
+  "description": "Read, validate, edit, render and create Electronics Workbench 5.x (.ewb) schematics.",
+  "contextFileName": "GEMINI.md",
+  "mcpServers": {
+    "ewb512": {
+      "command": "python3",
+      "args": [
+        "${extensionPath}/server.py"
+      ],
+      "env": {
+        "EWB_MCP_ALLOW_HOME": "1"
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "ewb512-schematics",
+  "version": "1.0.0",
+  "description": "Read, validate, edit, render and create Electronics Workbench 5.x (.ewb) schematics.",
+  "skills": "./skills",
+  "mcpServers": "./mcp.json",
+  "interface": {
+    "displayName": "EWB 5.12 Schematics",
+    "shortDescription": "Work with Electronics Workbench 5.x .ewb files.",
+    "longDescription": "Provides MCP tools and an agent skill for reading, validating, editing, rendering and creating Electronics Workbench 5.x schematics while preserving the native .ewb container and Project_5_1 document format.",
+    "developerName": "EWB MCP contributors",
+    "category": "Other"
+  }
+}
