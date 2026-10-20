@@ -1,0 +1,45 @@
+{
+  "$schema": "https://kimi.com/schemas/kimi.plugin.schema.json",
+  "name": "ewb512-schematics",
+  "version": "1.0.0",
+  "description": "Read, validate, edit, render and create Electronics Workbench 5.x (.ewb) schematics.",
+  "author": {
+    "name": "EWB MCP contributors"
+  },
+  "license": "MIT",
+  "keywords": [
+    "electronics",
+    "electronics-workbench",
+    "ewb",
+    "schematic",
+    "circuit",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "sessionStart": {
+    "skill": "ewb-schematics"
+  },
+  "skillInstructions": "Для любых задач с файлами .ewb используйте MCP-сервер ewb512 и skill ewb-schematics. Сначала читайте схему через ewb_read_schematic, используйте индексы элементов и номера выводов, после каждого изменения вызывайте ewb_validate. Не запускайте и не автоматизируйте саму Electronics Workbench.",
+  "mcpServers": {
+    "ewb512": {
+      "command": "python3",
+      "args": [
+        "./server.py"
+      ],
+      "cwd": "./",
+      "env": {
+        "EWB_MCP_ALLOW_HOME": "1"
+      }
+    }
+  },
+  "interface": {
+    "displayName": "EWB 5.12 Schematics",
+    "shortDescription": "Чтение, правка и создание схем Electronics Workbench 5.x.",
+    "longDescription": "MCP-инструменты и skill для схем .ewb: просмотр компонентов, выводов и связей, проверка структуры, редактирование, создание новых файлов и SVG-превью. Формат контейнера и документа сохраняется совместимым с EWB 5.12.",
+    "developerName": "EWB MCP contributors",
+    "capabilities": [
+      "Read",
+      "Write"
+    ]
+  }
+}

@@ -3,58 +3,60 @@ name: ewb-schematics
 description: Read, validate, edit, render and create Electronics Workbench 5.x (.ewb) schematics with the ewb512 MCP tools. Use whenever a task involves an .ewb file, EWB 5.12, Electronics Workbench circuits, adding or moving components and wires, building a new circuit, or producing an SVG preview. Russian triggers: "EWB", "Electronics Workbench", "схема EWB", ".ewb", "собери схему", "добавь резистор", "соедини выводы", "проверь схему".
 ---
 
-# EWB 5.12 schematics
+# Схемы EWB 5.12
 
-Use the `ewb512` MCP server. It preserves the native `.ewb` container
-(`EncryptionType: 2`) and the `Project_5_1` document format, so every saved
-file remains editable in Electronics Workbench 5.12.
+Используйте MCP-сервер `ewb512`. Он сохраняет нативный контейнер `.ewb`
+(`EncryptionType: 2`) и формат документа `Project_5_1`, поэтому записанный файл
+остаётся совместимым с Electronics Workbench 5.12.
 
-Do not install, launch or automate EWB itself. Everything is done by reading
-and writing the file format.
+Саму EWB не устанавливайте, не запускайте и не автоматизируйте. Вся работа
+идёт через чтение и запись файла.
 
-## Tool map
+## Карта инструментов
 
-| Tool | Use it for |
+| Инструмент | Для чего |
 |---|---|
-| `ewb_list_parts` | Discover supported parts, PartNum values, pin counts and known rotations. Start here when unsure about a part name. |
-| `ewb_read_schematic` | Inspect elements, absolute pin coordinates, wires, nets, warnings. |
-| `ewb_validate` | Check container, document structure, element fields, wire indices, pin geometry, routing and checksum. |
-| `ewb_render_svg` | Produce an SVG preview for visual verification. |
-| `ewb_create_schematic` | Create a new `.ewb`, optionally with components and wires in one call. |
-| `ewb_add_component` | Add one catalog component. |
-| `ewb_add_wire` | Connect two pins. |
-| `ewb_update_component` | Move, rotate, rename, or change value/model. |
-| `ewb_update_wire` | Change route, net label, colour or wire id. |
-| `ewb_remove_component` | Delete a component and, by default, its wires. |
-| `ewb_remove_wire` | Delete one wire by index. |
+| `ewb_list_parts` | Каталог компонентов: PartNum, имена, число выводов, известные повороты. Начните здесь, если не уверены в имени компонента. |
+| `ewb_read_schematic` | Компоненты, абсолютные координаты выводов, провода, сети, предупреждения. |
+| `ewb_validate` | Проверка контейнера, структуры документа, полей элементов, индексов проводов, геометрии выводов, маршрутов и checksum. |
+| `ewb_render_svg` | SVG-превью для визуальной проверки. |
+| `ewb_create_schematic` | Создание нового `.ewb`, при необходимости сразу с компонентами и проводами. |
+| `ewb_add_component` | Добавление одного компонента из каталога. |
+| `ewb_add_wire` | Соединение двух выводов проводом. |
+| `ewb_update_component` | Перемещение, поворот, переименование, изменение значения или модели. |
+| `ewb_update_wire` | Изменение маршрута, метки сети, цвета или id провода. |
+| `ewb_remove_component` | Удаление компонента и, по умолчанию, связанных проводов. |
+| `ewb_remove_wire` | Удаление одного провода по индексу. |
 
-## Mandatory workflow
+## Обязательный порядок работы
 
-1. **Inspect before editing.** Call `ewb_read_schematic` with `include_pins: true`
-   and `include_wires: true`. Use the returned element indices and pin numbers.
-   Never guess a pin number from a symbol drawing.
-2. **Check the baseline.** For an unfamiliar file call `ewb_validate` first.
-   A file with `document_roundtrip_exact: false` is not safe to edit; stop and
-   report it.
-3. **Edit.** Prefer element indices over reference designators. Ground symbols
-   all share `refid: "0"`, so a `ref` lookup for ground is ambiguous. Numeric
-   strings such as `"2"` mean a reference designator, not an index; pass a JSON
-   number for an index.
-4. **Validate again.** Call `ewb_validate` after every edit and fix all errors.
-   Warnings are informational unless they describe a wrong route or unknown pin.
-5. **Render and look.** Call `ewb_render_svg` and inspect the SVG for overlapping
-   labels, disconnected-looking wires or misplaced parts. The preview is
-   approximate, not a pixel-accurate EWB rendering.
+1. **Сначала прочитайте схему.** Вызовите `ewb_read_schematic` с
+   `include_pins: true` и `include_wires: true`. Используйте возвращённые
+   индексы элементов и номера выводов. Никогда не угадывайте номер вывода по
+   рисунку символа.
+2. **Проверьте исходное состояние.** Для незнакомого файла сначала вызовите
+   `ewb_validate`. Если `document_roundtrip_exact: false`, файл небезопасно
+   редактировать: остановитесь и сообщите об этом.
+3. **Редактируйте.** Предпочитайте индексы элементов, а не обозначения.
+   У всех земляных символов `refid` равен `"0"`, поэтому поиск земли по `ref`
+   неоднозначен. Строка `"2"` в `ref` означает обозначение `2`, а не индекс;
+   индекс передавайте JSON-числом.
+4. **Проверьте после каждого изменения.** Вызовите `ewb_validate` и исправьте
+   все ошибки. Предупреждения информационны, если только они не указывают на
+   неверный маршрут или неизвестный вывод.
+5. **Отрисуйте и посмотрите.** Вызовите `ewb_render_svg` и проверьте SVG на
+   пересечение подписей, визуально разорванные провода и смещённые элементы.
+   Превью приблизительное, это не пиксельная копия отрисовки EWB.
 
-Edits are atomic and create `<name>.ewb.bak`. Never overwrite the user's
-original file unless they explicitly asked to edit that path. When exploring,
-copy it first or edit the copy.
+Изменения атомарные, рядом создаётся `<имя>.ewb.bak`. Не перезаписывайте
+исходный файл пользователя, если он явно не попросил редактировать именно этот
+путь. При исследовании сначала сделайте копию или редактируйте копию.
 
-## Creating a circuit
+## Создание схемы
 
-`ewb_create_schematic` accepts catalog parts, positions and wires. Wire
-endpoints are either zero-based indices into the `components` array or unique
-reference designators.
+`ewb_create_schematic` принимает компоненты каталога, позиции и провода.
+Концы провода — это либо индексы в массиве `components` (с нуля), либо
+уникальные обозначения.
 
 ```json
 {
@@ -79,61 +81,63 @@ reference designators.
 }
 ```
 
-Notes:
+Примечания:
 
-- Values accept numbers or strings with SI suffixes: `k`, `M`, `u`, `n`, `p`.
-  A JSON array sets all value fields; a scalar sets the primary value.
-- `rotation` is `0..7`. Only some part/rotation combinations have known pin
-  geometry; `ewb_list_parts` reports them. Unknown geometry is allowed, but
-  automatic wire routing is limited.
-- `route` defaults to `"auto"` (orthogonal route). `route: "none"` writes no
-  segment list and lets EWB route the wire when the file is opened.
-- `node` is a net label (default `"0"`). It is metadata, not an electrical
-  connection: connectivity comes from the wire endpoints.
-- Node/junction markers are part `NODE` (PartNum 39).
+- Значения принимают числа или строки с суффиксами `k`, `M`, `u`, `n`, `p`.
+  Массив задаёт все поля значения, скаляр — только основное.
+- `rotation` — `0..7`. Геометрия выводов известна не для всех сочетаний
+  «компонент + поворот»; `ewb_list_parts` показывает известные варианты.
+  Неизвестная геометрия допустима, но автоматическая маршрутизация ограничена.
+- `route` по умолчанию `"auto"` (ортогональный маршрут). `route: "none"`
+  записывает провод без списка сегментов: EWB проложит его при открытии.
+- `node` — метка сети (по умолчанию `"0"`). Это метаданные, а не электрическое
+  соединение: связность задаётся концами провода.
+- Маркер узла — компонент `NODE` (PartNum 39).
 
-## Coordinates and pins
+## Координаты и выводы
 
-`Position` is the element's anchor, not its body centre. Absolute pin position:
+`Position` — опорная точка элемента, а не центр корпуса. Абсолютная координата
+вывода:
 
 ```text
 pin_abs = Position + pin_offset(PartNum, rotation, pin)
 ```
 
-Offsets are intentionally asymmetric. Always use pin coordinates reported by
-`ewb_read_schematic` or the `pins` object returned by `ewb_add_component`.
-When moving a component, the server re-routes attached wires automatically if
-the pin geometry is known. Verify with `ewb_read_schematic` afterwards.
+Смещения намеренно асимметричны. Всегда используйте координаты выводов из
+`ewb_read_schematic` или объект `pins`, который возвращает
+`ewb_add_component`. При перемещении компонента сервер автоматически
+переразводит подключённые провода, если геометрия выводов известна. После
+этого проверьте результат через `ewb_read_schematic`.
 
-Wire segments are stored as `[direction, length]` pairs:
+Сегменты провода хранятся парами `[direction, length]`:
 
-| Code | Direction |
+| Код | Направление |
 |---:|---|
 | 1 | +X |
 | 2 | +Y |
 | 4 | −X |
 | 8 | −Y |
-| 3, 6, 9, 12 | diagonals |
+| 3, 6, 9, 12 | диагонали |
 
-## Component catalog
+## Каталог компонентов
 
-Supported PartNum range is `0..39`: AC/DC voltage and current sources, battery,
-resistor, capacitor, inductor, diode, Zener, LED, bulb, fuse, relay, NPN/PNP
-transistors, JFETs, depletion/enhancement MOSFETs, op-amp, transformer,
-ammeter, voltmeter, connector, ground, switches, time-delay switch, controlled
-sources, and node. Use `ewb_list_parts` for exact names and aliases instead of
-guessing.
+Поддерживается диапазон PartNum `0..39`: источники напряжения и тока AC/DC,
+батарея, резистор, конденсатор, катушка индуктивности, диод, стабилитрон, LED,
+лампа, предохранитель, реле, NPN/PNP-транзисторы, JFET, MOSFET, операционный
+усилитель, трансформатор, амперметр, вольтметр, соединитель, земля,
+переключатели, переключатель с задержкой, управляемые источники и узел.
+Точные имена и алиасы берите из `ewb_list_parts`, а не угадывайте.
 
-Ground is special: EWB stores every ground symbol as reference `0`. Multiple
-grounds are normal and expected.
+Земля особая: EWB хранит все земляные символы с обозначением `0`. Несколько
+земель в одной схеме — это нормально и ожидаемо.
 
-## Reporting results
+## Отчёт о результате
 
-Report the file path, element count, wire count, net count, and the validation
-result. If `ewb_validate` returns errors, quote them and do not claim success.
-If a requested part or rotation has unknown pin geometry, say so explicitly
-instead of silently producing a possibly wrong layout.
+Сообщите путь к файлу, число элементов, проводов и сетей, результат проверки.
+Если `ewb_validate` вернул ошибки, процитируйте их и не заявляйте об успехе.
+Если для запрошенного компонента или поворота геометрия выводов неизвестна,
+скажите об этом явно, а не выдавайте возможно неверную схему за готовую.
 
-The SVG is a preview. Never present it as an EWB screenshot or as proof that
-the circuit simulates correctly; the server performs structural validation
-only, not electrical simulation or ERC.
+SVG — это превью. Никогда не представляйте его как скриншот EWB или как
+доказательство того, что схема корректно симулируется: сервер проверяет только
+структуру файла, а не электрическую схему и не выполняет ERC.

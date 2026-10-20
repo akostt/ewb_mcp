@@ -1,0 +1,24 @@
+{
+  "name": "ewb512-schematics",
+  "displayName": "EWB 5.12 Schematics",
+  "version": "1.0.0",
+  "description": "Read, validate, edit, render and create Electronics Workbench 5.x (.ewb) schematics while preserving the native container and Project_5_1 document format.",
+  "suggestedPrompts": [
+    "Открой схему .ewb и покажи компоненты, выводы и связи",
+    "Добавь резистор и соедини его с остальной схемой",
+    "Создай схему RC + LED, проверь её и покажи SVG-превью"
+  ],
+  "category": "Developer Tools",
+  "keywords": [
+    "electronics",
+    "electronics-workbench",
+    "ewb",
+    "schematic",
+    "circuit",
+    "mcp"
+  ],
+  "author": {
+    "name": "EWB MCP contributors"
+  },
+  "license": "MIT"
+}

@@ -61,7 +61,7 @@ def allowed_roots():
     global _ALLOWED_ROOTS
     if _ALLOWED_ROOTS is not None:
         return _ALLOWED_ROOTS
-    roots = [Path.cwd(), HERE.parent, Path("/tmp"), Path("/private/tmp")]
+    roots = [Path.cwd(), HERE, Path("/tmp"), Path("/private/tmp")]
     if os.environ.get("EWB_MCP_ALLOW_HOME", "").strip().lower() in (
             "1", "true", "yes", "on"):
         # Plugin installs often run with their own directory as the working

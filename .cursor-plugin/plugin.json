@@ -1,9 +1,31 @@
 {
   "name": "ewb512-schematics",
+  "displayName": "EWB 5.12 Schematics",
   "version": "1.0.0",
   "description": "Read, validate, edit, render and create Electronics Workbench 5.x (.ewb) schematics.",
   "author": {
     "name": "EWB MCP contributors"
   },
-  "mcpServers": "./mcp.json"
+  "license": "MIT",
+  "keywords": [
+    "electronics",
+    "electronics-workbench",
+    "ewb",
+    "schematic",
+    "circuit",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": {
+    "ewb512": {
+      "type": "stdio",
+      "command": "python3",
+      "args": [
+        "${CURSOR_PLUGIN_ROOT}/server.py"
+      ],
+      "env": {
+        "EWB_MCP_ALLOW_HOME": "1"
+      }
+    }
+  }
 }

@@ -1,0 +1,26 @@
+{
+  "name": "ewb512-plugins",
+  "description": "Marketplace with the EWB 5.12 schematics plugin.",
+  "owner": {
+    "name": "EWB MCP contributors"
+  },
+  "plugins": [
+    {
+      "name": "ewb512-schematics",
+      "description": "Read, validate, edit, render and create Electronics Workbench 5.x (.ewb) schematics.",
+      "version": "1.0.0",
+      "source": "./",
+      "author": {
+        "name": "EWB MCP contributors"
+      },
+      "license": "MIT",
+      "keywords": [
+        "electronics",
+        "ewb",
+        "schematic",
+        "circuit",
+        "mcp"
+      ]
+    }
+  ]
+}

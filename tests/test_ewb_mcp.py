@@ -5,6 +5,7 @@ Run from the repository root:
     python3 -m unittest discover -s tests -v
 """
 
+import json
 import os
 import sys
 import tempfile
@@ -195,6 +196,200 @@ class ServerToolTests(unittest.TestCase):
         self.assertTrue(text.startswith("<?xml"))
         self.assertIn("<svg ", text)
         self.assertIn("</svg>", text)
+
+
+class ManifestTests(unittest.TestCase):
+    """Keep the per-client plugin manifests mutually consistent."""
+
+    JSON_FILES = [
+        "plugin.json",
+        "mcp.json",
+        ".mcp.json",
+        "mcp_config.json",
+        "mcp_config.example.json",
+        "gemini-extension.json",
+        ".claude-plugin/plugin.json",
+        ".claude-plugin/marketplace.json",
+        ".codex-plugin/plugin.json",
+        ".cursor-plugin/plugin.json",
+        ".devin-plugin/plugin.json",
+        ".kimi-plugin/plugin.json",
+        ".muse-plugin/plugin.json",
+        ".muse-plugin/marketplace.json",
+        ".antigravity-plugin/plugin.json",
+        ".agents/plugins/marketplace.json",
+        ".vscode/mcp.json",
+    ]
+
+    def setUp(self):
+        self.core = self._load("plugin.json")
+
+    def _load(self, rel):
+        path = ROOT / rel
+        with path.open("r", encoding="utf-8") as f:
+            return json.load(f)
+
+    def _assert_exists(self, rel):
+        path = (ROOT / rel).resolve()
+        self.assertTrue(
+            path.exists(),
+            "%s is referenced by a manifest but does not exist" % rel,
+        )
+
+    def _assert_server(self, server, command="python3"):
+        self.assertEqual(server["command"], command)
+        self.assertIsInstance(server["args"], list)
+        self.assertTrue(server["args"])
+
+    def test_all_json_manifests_are_valid(self):
+        for rel in self.JSON_FILES:
+            with self.subTest(manifest=rel):
+                data = self._load(rel)
+                self.assertIsInstance(data, dict)
+
+    def test_core_identity_is_consistent(self):
+        for rel in self.JSON_FILES:
+            data = self._load(rel)
+            if "name" not in data or rel.endswith("marketplace.json"):
+                continue
+            with self.subTest(manifest=rel):
+                self.assertEqual(data["name"], self.core["name"])
+                self.assertEqual(data["version"], self.core["version"])
+
+    def test_agent_plugins_mcp_manifest(self):
+        data = self._load("mcp.json")
+        self.assertEqual(
+            data["$schema"],
+            "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+        )
+        server = data["mcpServers"]["ewb512"]
+        self._assert_server(server)
+        self.assertEqual(server["type"], "stdio")
+        self.assertEqual(server["args"], ["${PLUGIN_ROOT}/server.py"])
+        self.assertEqual(server["cwd"], "${PLUGIN_ROOT}")
+        self.assertEqual(server["env"]["EWB_MCP_ALLOW_HOME"], "1")
+        self.assertNotIn("${", server["command"])
+        self.assertNotEqual(server["cwd"], ".")
+
+    def test_claude_manifest_and_mcp(self):
+        plugin = self._load(".claude-plugin/plugin.json")
+        for rel in plugin.get("skills", []):
+            self._assert_exists(rel)
+        market = self._load(".claude-plugin/marketplace.json")
+        self.assertEqual(market["plugins"][0]["name"], self.core["name"])
+        server = self._load(".mcp.json")["mcpServers"]["ewb512"]
+        self.assertEqual(server["args"], ["${CLAUDE_PLUGIN_ROOT}/server.py"])
+        self.assertEqual(server["env"]["EWB_MCP_ALLOW_HOME"], "1")
+
+    def test_codex_manifest_paths(self):
+        plugin = self._load(".codex-plugin/plugin.json")
+        self._assert_exists(plugin["skills"])
+        self._assert_exists(plugin["mcpServers"])
+        server = self._load(plugin["mcpServers"])["mcpServers"]["ewb512"]
+        self._assert_server(server)
+        self.assertEqual(server["type"], "stdio")
+        self.assertIn("${PLUGIN_ROOT}/server.py", server["args"])
+
+    def test_cursor_uses_cursor_root(self):
+        plugin = self._load(".cursor-plugin/plugin.json")
+        self._assert_exists(plugin["skills"])
+        server = plugin["mcpServers"]["ewb512"]
+        self._assert_server(server)
+        self.assertEqual(server["type"], "stdio")
+        self.assertIn("${CURSOR_PLUGIN_ROOT}/server.py", server["args"])
+        self.assertNotIn("${PLUGIN_ROOT}", server["args"])
+        self.assertEqual(server["env"]["EWB_MCP_ALLOW_HOME"], "1")
+
+    def test_devin_declares_mcp_inline(self):
+        plugin = self._load(".devin-plugin/plugin.json")
+        self._assert_exists(plugin["skills"])
+        self.assertIsInstance(plugin["mcpServers"], dict)
+        server = plugin["mcpServers"]["ewb512"]
+        self._assert_server(server)
+        self.assertIn("./server.py", server["args"])
+        self.assertNotIn("${CLAUDE_PLUGIN_ROOT}", server["args"])
+        self.assertEqual(server["env"]["EWB_MCP_ALLOW_HOME"], "1")
+
+    def test_kimi_manifest(self):
+        plugin = self._load(".kimi-plugin/plugin.json")
+        self._assert_exists(plugin["skills"])
+        self.assertEqual(plugin["sessionStart"]["skill"], "ewb-schematics")
+        self._assert_exists("skills/ewb-schematics/SKILL.md")
+        server = plugin["mcpServers"]["ewb512"]
+        self._assert_server(server)
+        self.assertEqual(server["cwd"], "./")
+        self.assertEqual(server["env"]["EWB_MCP_ALLOW_HOME"], "1")
+
+    def test_muse_manifest_and_launcher(self):
+        plugin = self._load(".muse-plugin/plugin.json")
+        self.assertEqual(plugin["schemaVersion"], 1)
+        self.assertEqual(plugin["compat"]["manifestDir"], ".muse-plugin")
+        skills = plugin["capabilities"]["skills"]
+        self.assertEqual(skills[0]["id"], "ewb-schematics")
+        self._assert_exists(skills[0]["path"])
+        server = plugin["capabilities"]["mcpServers"][0]
+        self.assertEqual(server["transport"], "stdio")
+        self.assertEqual(server["command"][0], "python3")
+        self.assertEqual(server["command"][1], "scripts/ewb_mcp_launcher.py")
+        self._assert_exists(server["command"][1])
+        launcher = (ROOT / "scripts" / "ewb_mcp_launcher.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("EWB_MCP_ALLOW_HOME", launcher)
+        market = self._load(".muse-plugin/marketplace.json")
+        self.assertEqual(market["plugins"][0]["name"], self.core["name"])
+
+    def test_antigravity_manifest_and_mcp(self):
+        plugin = self._load(".antigravity-plugin/plugin.json")
+        self.assertEqual(plugin["name"], self.core["name"])
+        server = self._load("mcp_config.json")["mcpServers"]["ewb512"]
+        self._assert_server(server)
+        self.assertEqual(server["args"], ["server.py"])
+        self.assertEqual(server["cwd"], ".")
+        self.assertEqual(server["env"]["EWB_MCP_ALLOW_HOME"], "1")
+
+    def test_gemini_extension(self):
+        data = self._load("gemini-extension.json")
+        self._assert_exists(data["contextFileName"])
+        server = data["mcpServers"]["ewb512"]
+        self._assert_server(server)
+        self.assertEqual(server["args"], ["${extensionPath}/server.py"])
+
+    def test_vscode_mcp(self):
+        data = self._load(".vscode/mcp.json")
+        server = data["servers"]["ewb512"]
+        self._assert_server(server)
+        self.assertEqual(server["type"], "stdio")
+        self.assertEqual(server["args"], ["${workspaceFolder}/server.py"])
+
+    def test_marketplace_names(self):
+        for rel in (".claude-plugin/marketplace.json",
+                    ".agents/plugins/marketplace.json",
+                    ".muse-plugin/marketplace.json"):
+            with self.subTest(manifest=rel):
+                market = self._load(rel)
+                self.assertEqual(market["name"], "ewb512-plugins")
+                self.assertEqual(market["plugins"][0]["name"], self.core["name"])
+                self.assertEqual(
+                    market["plugins"][0]["version"], self.core["version"])
+
+    def test_skill_frontmatter(self):
+        text = (ROOT / "skills" / "ewb-schematics" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertTrue(text.startswith("---\n"))
+        front = text.split("---\n", 2)[1]
+        self.assertIn("name: ewb-schematics", front)
+        self.assertIn("description:", front)
+
+    def test_documentation_files_exist(self):
+        for rel in ("README.md", "docs/README.md", "docs/INSTALL.md",
+                    "docs/TOOLS.md", "docs/FORMAT.md",
+                    "docs/TROUBLESHOOTING.md", ".opencode/INSTALL.md"):
+            with self.subTest(path=rel):
+                path = ROOT / rel
+                self.assertTrue(path.is_file(), rel)
+                self.assertGreater(path.stat().st_size, 200, rel)
 
 
 ORIGINAL = ROOT / "local" / "examples" / "лаба 4.ewb"

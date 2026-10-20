@@ -415,7 +415,8 @@ def build_ewb(document, header=None, description=''):
 
 
 def read_ewb(path):
-    raw = open(path, 'rb').read()
+    with open(path, 'rb') as f:
+        raw = f.read()
     header, blocks, plains, doc, checksum = split_file(raw)
     return {
         'header': header,

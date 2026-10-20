@@ -7,6 +7,9 @@
     "name": "EWB MCP contributors"
   },
   "license": "MIT",
+  "skills": [
+    "./skills/"
+  ],
   "keywords": [
     "electronics",
     "electronics-workbench",

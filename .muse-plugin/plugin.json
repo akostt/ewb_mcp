@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "name": "ewb512-schematics",
+  "displayName": "EWB 5.12 Schematics",
+  "version": "1.0.0",
+  "description": "Read, validate, edit, render and create Electronics Workbench 5.x (.ewb) schematics.",
+  "compat": {
+    "source": "native",
+    "manifestDir": ".muse-plugin"
+  },
+  "capabilities": {
+    "skills": [
+      {
+        "id": "ewb-schematics",
+        "path": "skills/ewb-schematics/SKILL.md",
+        "enabledDefault": true
+      }
+    ],
+    "commands": [],
+    "hooks": [],
+    "mcpServers": [
+      {
+        "id": "ewb512",
+        "transport": "stdio",
+        "command": [
+          "python3",
+          "scripts/ewb_mcp_launcher.py"
+        ]
+      }
+    ],
+    "reminders": []
+  }
+}

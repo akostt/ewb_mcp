@@ -1,18 +1,18 @@
-# EWB 5.12 schematics
+# Схемы EWB 5.12
 
-This package is an MCP server plus an agent skill for Electronics Workbench
-5.x `.ewb` files. It reads, validates, edits, renders and creates schematics
-while preserving the native container and `Project_5_1` document format.
+Этот пакет — MCP-сервер и skill для файлов Electronics Workbench 5.x `.ewb`.
+Он читает, проверяет, редактирует, рисует и создаёт схемы, сохраняя нативный
+контейнер и формат документа `Project_5_1`.
 
-For any task involving `.ewb` files, follow `skills/ewb-schematics/SKILL.md`.
-The practical rules are:
+Для любой задачи с `.ewb` следуйте `skills/ewb-schematics/SKILL.md`.
+Коротко:
 
-- inspect with `ewb_read_schematic` before editing;
-- use element indices, not ambiguous references such as ground `"0"`;
-- validate after each change with `ewb_validate`;
-- render with `ewb_render_svg` and inspect the result;
-- never install, launch or automate EWB itself;
-- never overwrite the user's original file unless explicitly asked.
+- сначала прочитайте схему через `ewb_read_schematic`;
+- используйте индексы элементов, а не неоднозначные обозначения вроде земли `"0"`;
+- после каждого изменения вызывайте `ewb_validate`;
+- рисуйте `ewb_render_svg` и проверяйте результат;
+- не устанавливайте, не запускайте и не автоматизируйте саму EWB;
+- не перезаписывайте исходный файл пользователя без явной просьбы.
 
-The MCP server is `server.py`, is written for Python 3.8+ and has no external
-dependencies. It is registered by the plugin manifests in this directory.
+MCP-сервер — `server.py`, требуется Python 3.8+, внешних зависимостей нет.
+Сервер регистрируется манифестами плагина в этом каталоге.
