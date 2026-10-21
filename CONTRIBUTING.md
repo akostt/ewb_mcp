@@ -35,6 +35,9 @@ Python.
 - При добавлении клиента обновите его манифест, раздел в `docs/INSTALL.md` и
   `ManifestTests` в `tests/test_ewb_mcp.py`. Имя и версия плагина должны
   совпадать с корневым `plugin.json`.
+- При изменении `PARTS` или `PINS` в `ewb_parts.py` обновите таблицу в
+  `docs/CATALOG.md`: тест `test_catalog_document_covers_every_part` проверяет,
+  что описаны все записи каталога.
 
 ## Лицензия
 

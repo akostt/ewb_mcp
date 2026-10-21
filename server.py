@@ -577,12 +577,18 @@ def create_component(doc, spec, warnings):
         raise ToolError("%s has no Value field" % parts.PARTS[pn][0])
     element = doc.add_component(pn, ref, x=x, y=y, rot=rot,
                                 value=value, model=model)
-    if not element.pins and parts.PINS.get(pn):
-        warnings.append(
-            "%s uses rotation %s, for which pin geometry is not known; wires "
-            "will be stored without an explicit route" %
-            (element.refid, element.rot)
-        )
+    if not element.pins:
+        if parts.PINS.get(pn):
+            warnings.append(
+                "%s uses rotation %s, for which pin geometry is not known; wires "
+                "will be stored without an explicit route" %
+                (element.refid, element.rot)
+            )
+        else:
+            warnings.append(
+                "%s has no observed pin geometry; wires will be stored without "
+                "an explicit route" % element.refid
+            )
     return element
 
 

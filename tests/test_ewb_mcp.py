@@ -19,6 +19,7 @@ if str(ROOT) not in sys.path:
 import ewb_blank
 import ewb_codec as codec
 import ewb_doc as docmod
+import ewb_parts
 import server
 
 
@@ -130,6 +131,27 @@ class ServerToolTests(unittest.TestCase):
         self.assertEqual(read["format"]["header"]["description"], "RC + LED")
         self.assertEqual([e["refid"] for e in read["elements"]],
                          ["0", "0", "V1", "R1", "C1", "D1"])
+
+    def test_all_catalog_parts_are_supported(self):
+        components = [
+            {"part": pn,
+             "x": 100 + (pn % 8) * 120,
+             "y": 100 + (pn // 8) * 120}
+            for pn in sorted(ewb_parts.PARTS)
+        ]
+        path = self.root / "all_parts.ewb"
+        result = server.tool_create_schematic({
+            "path": str(path),
+            "description": "catalog",
+            "components": components,
+        })
+        self.assertEqual(result["element_count"], 40)
+        self.assertEqual([e["partnum"] for e in result["elements"]],
+                         sorted(ewb_parts.PARTS))
+        self.assertEqual(len(result["warnings"]),
+                         len(ewb_parts.PARTS) - len(ewb_parts.PINS))
+        valid = server.tool_validate({"path": str(path)})
+        self.assertTrue(valid["valid"], valid["errors"])
 
     def test_edits_keep_file_valid_and_create_backup(self):
         path, _ = self._create()
@@ -384,12 +406,20 @@ class ManifestTests(unittest.TestCase):
 
     def test_documentation_files_exist(self):
         for rel in ("README.md", "docs/README.md", "docs/INSTALL.md",
-                    "docs/TOOLS.md", "docs/FORMAT.md",
+                    "docs/TOOLS.md", "docs/CATALOG.md", "docs/FORMAT.md",
                     "docs/TROUBLESHOOTING.md", ".opencode/INSTALL.md"):
             with self.subTest(path=rel):
                 path = ROOT / rel
                 self.assertTrue(path.is_file(), rel)
                 self.assertGreater(path.stat().st_size, 200, rel)
+
+    def test_catalog_document_covers_every_part(self):
+        text = (ROOT / "docs" / "CATALOG.md").read_text(encoding="utf-8")
+        self.assertEqual(len(ewb_parts.PARTS), 40)
+        self.assertEqual(len(ewb_parts.PINS), 17)
+        for partnum, spec in ewb_parts.PARTS.items():
+            with self.subTest(partnum=partnum):
+                self.assertIn("| %d | `%s` |" % (partnum, spec[0]), text)
 
 
 ORIGINAL = ROOT / "local" / "examples" / "лаба 4.ewb"

@@ -10,7 +10,8 @@
   документа `Project_5_1`.
 - Генерация пустого документа без файла-шаблона, созданного приложением.
 - Каталог компонентов EWB, геометрия выводов, автоматическая маршрутизация
-  проводов.
+  проводов. Полный список всех 40 записей `PartNum 0..39` — в
+  `docs/CATALOG.md`.
 - Плагинные манифесты и конфигурации для Claude Code, Codex, Cursor,
   Gemini CLI, Qwen Code, OpenCode, Kimi Code, Muse, Antigravity, Devin CLI,
   Hermes Agent, GitHub Copilot CLI, VS Code, Factory Droid и Qoder.
