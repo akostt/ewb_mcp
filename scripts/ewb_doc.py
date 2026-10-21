@@ -320,7 +320,7 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) != 2:
-        sys.stderr.write("usage: python3 ewb_doc.py DOCUMENT.txt\n")
+        sys.stderr.write("usage: python3 scripts/ewb_doc.py DOCUMENT.txt\n")
         raise SystemExit(2)
     with open(sys.argv[1], "rb") as f:
         raw = f.read()

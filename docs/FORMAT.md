@@ -293,14 +293,14 @@ pin_abs = (Position.x, Position.y) + offset(PartNum, rotation, pin)
 Разобрать контейнер и вывести документ:
 
 ```bash
-python3 ewb_codec.py "local/examples/лаба 4.ewb"
+python3 scripts/ewb_codec.py "local/examples/лаба 4.ewb"
 ```
 
 Проверить байтовый round-trip документа:
 
 ```bash
-python3 ewb_codec.py "local/examples/лаба 4.ewb" > /tmp/document.txt
-python3 ewb_doc.py /tmp/document.txt
+python3 scripts/ewb_codec.py "local/examples/лаба 4.ewb" > /tmp/document.txt
+python3 scripts/ewb_doc.py /tmp/document.txt
 ```
 
 Ожидаемый результат второй команды:

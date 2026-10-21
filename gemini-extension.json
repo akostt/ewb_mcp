@@ -7,7 +7,7 @@
     "ewb512": {
       "command": "python3",
       "args": [
-        "${extensionPath}/server.py"
+        "${extensionPath}/scripts/server.py"
       ],
       "env": {
         "EWB_MCP_ALLOW_HOME": "1"

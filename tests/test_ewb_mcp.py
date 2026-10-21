@@ -13,8 +13,9 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+SCRIPTS = ROOT / "scripts"
+if str(SCRIPTS) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS))
 
 import ewb_blank
 import ewb_codec as codec
@@ -287,7 +288,7 @@ class ManifestTests(unittest.TestCase):
         server = data["mcpServers"]["ewb512"]
         self._assert_server(server)
         self.assertEqual(server["type"], "stdio")
-        self.assertEqual(server["args"], ["${PLUGIN_ROOT}/server.py"])
+        self.assertEqual(server["args"], ["${PLUGIN_ROOT}/scripts/server.py"])
         self.assertEqual(server["cwd"], "${PLUGIN_ROOT}")
         self.assertEqual(server["env"]["EWB_MCP_ALLOW_HOME"], "1")
         self.assertNotIn("${", server["command"])
@@ -300,7 +301,7 @@ class ManifestTests(unittest.TestCase):
         market = self._load(".claude-plugin/marketplace.json")
         self.assertEqual(market["plugins"][0]["name"], self.core["name"])
         server = self._load(".mcp.json")["mcpServers"]["ewb512"]
-        self.assertEqual(server["args"], ["${CLAUDE_PLUGIN_ROOT}/server.py"])
+        self.assertEqual(server["args"], ["${CLAUDE_PLUGIN_ROOT}/scripts/server.py"])
         self.assertEqual(server["env"]["EWB_MCP_ALLOW_HOME"], "1")
 
     def test_codex_manifest_paths(self):
@@ -310,7 +311,7 @@ class ManifestTests(unittest.TestCase):
         server = self._load(plugin["mcpServers"])["mcpServers"]["ewb512"]
         self._assert_server(server)
         self.assertEqual(server["type"], "stdio")
-        self.assertIn("${PLUGIN_ROOT}/server.py", server["args"])
+        self.assertIn("${PLUGIN_ROOT}/scripts/server.py", server["args"])
 
     def test_cursor_uses_cursor_root(self):
         plugin = self._load(".cursor-plugin/plugin.json")
@@ -318,7 +319,7 @@ class ManifestTests(unittest.TestCase):
         server = plugin["mcpServers"]["ewb512"]
         self._assert_server(server)
         self.assertEqual(server["type"], "stdio")
-        self.assertIn("${CURSOR_PLUGIN_ROOT}/server.py", server["args"])
+        self.assertIn("${CURSOR_PLUGIN_ROOT}/scripts/server.py", server["args"])
         self.assertNotIn("${PLUGIN_ROOT}", server["args"])
         self.assertEqual(server["env"]["EWB_MCP_ALLOW_HOME"], "1")
 
@@ -328,7 +329,7 @@ class ManifestTests(unittest.TestCase):
         self.assertIsInstance(plugin["mcpServers"], dict)
         server = plugin["mcpServers"]["ewb512"]
         self._assert_server(server)
-        self.assertIn("./server.py", server["args"])
+        self.assertIn("./scripts/server.py", server["args"])
         self.assertNotIn("${CLAUDE_PLUGIN_ROOT}", server["args"])
         self.assertEqual(server["env"]["EWB_MCP_ALLOW_HOME"], "1")
 
@@ -366,7 +367,7 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual(plugin["name"], self.core["name"])
         server = self._load("mcp_config.json")["mcpServers"]["ewb512"]
         self._assert_server(server)
-        self.assertEqual(server["args"], ["server.py"])
+        self.assertEqual(server["args"], ["scripts/server.py"])
         self.assertEqual(server["cwd"], ".")
         self.assertEqual(server["env"]["EWB_MCP_ALLOW_HOME"], "1")
 
@@ -375,14 +376,14 @@ class ManifestTests(unittest.TestCase):
         self._assert_exists(data["contextFileName"])
         server = data["mcpServers"]["ewb512"]
         self._assert_server(server)
-        self.assertEqual(server["args"], ["${extensionPath}/server.py"])
+        self.assertEqual(server["args"], ["${extensionPath}/scripts/server.py"])
 
     def test_vscode_mcp(self):
         data = self._load(".vscode/mcp.json")
         server = data["servers"]["ewb512"]
         self._assert_server(server)
         self.assertEqual(server["type"], "stdio")
-        self.assertEqual(server["args"], ["${workspaceFolder}/server.py"])
+        self.assertEqual(server["args"], ["${workspaceFolder}/scripts/server.py"])
 
     def test_marketplace_names(self):
         for rel in (".claude-plugin/marketplace.json",

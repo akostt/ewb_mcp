@@ -14,4 +14,4 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 os.environ.setdefault("EWB_MCP_ALLOW_HOME", "1")
-runpy.run_path(str(ROOT / "server.py"), run_name="__main__")
+runpy.run_path(str(ROOT / "scripts" / "server.py"), run_name="__main__")

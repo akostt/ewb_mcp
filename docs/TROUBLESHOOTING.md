@@ -15,17 +15,17 @@ MCP замените `command` на `python`.
 
 ### `ModuleNotFoundError`
 
-Сервер использует только стандартную библиотеку, но запускать его нужно из
-каталога, где лежат `server.py`, `ewb_codec.py`, `ewb_doc.py`, `ewb_parts.py`
-и `ewb_svg.py`. Если клиент запускает `server.py` по абсолютному пути, модули
-всё равно находятся рядом с файлом. Ошибка обычно означает, что скопирован
-только один файл.
+Сервер использует только стандартную библиотеку. Все его модули лежат в
+каталоге `scripts/`: `server.py`, `ewb_codec.py`, `ewb_doc.py`, `ewb_parts.py`
+и `ewb_svg.py`. Если клиент запускает `scripts/server.py` по абсолютному пути,
+модули всё равно находятся рядом с файлом. Ошибка обычно означает, что
+скопирован только один файл.
 
 Проверка:
 
 ```bash
 cd /path/to/ewb_mcp
-python3 -c "import server; print(server.SERVER_NAME)"
+python3 -c "import sys; sys.path.insert(0, 'scripts'); import server; print(server.SERVER_NAME)"
 ```
 
 ### MCP-клиент не видит инструменты
@@ -36,13 +36,13 @@ python3 -c "import server; print(server.SERVER_NAME)"
    cd /path/to/ewb_mcp
    printf '%s\n' \
      '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"check","version":"1"}}}' \
-     | python3 server.py
+     | python3 scripts/server.py
    ```
 
    В ответе должно быть `"name": "ewb512-schematic"`.
 
 2. Проверьте путь в конфигурации клиента. Для большинства клиентов нужен
-   абсолютный путь к `server.py`.
+   абсолютный путь к `scripts/server.py`.
 3. Перезапустите клиент или перезагрузите окно.
 4. Посмотрите логи MCP-сервера в клиенте.
 
@@ -223,7 +223,7 @@ Muse не передаёт `env` в манифесте. В пакете для �
   "mcp": {
     "ewb512": {
       "type": "local",
-      "command": ["python3", "/absolute/path/server.py"],
+      "command": ["python3", "/absolute/path/to/ewb_mcp/scripts/server.py"],
       "environment": {"EWB_MCP_ALLOW_HOME": "1"}
     }
   }

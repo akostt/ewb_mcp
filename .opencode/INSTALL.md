@@ -14,7 +14,7 @@
   "mcp": {
     "ewb512": {
       "type": "local",
-      "command": ["python3", "/absolute/path/to/ewb_mcp/server.py"],
+      "command": ["python3", "/absolute/path/to/ewb_mcp/scripts/server.py"],
       "enabled": true,
       "environment": {
         "EWB_MCP_ALLOW_HOME": "1"
@@ -24,8 +24,8 @@
 }
 ```
 
-Замените `/absolute/path/to/ewb_mcp/server.py` на реальный путь. На Windows
-используйте `python` и путь вида `C:\\path\\to\\ewb_mcp\\server.py` (в JSON
+Замените `/absolute/path/to/ewb_mcp/scripts/server.py` на реальный путь. На Windows
+используйте `python` и путь вида `C:\\path\\to\\ewb_mcp\\scripts\\server.py` (в JSON
 обратные слэши удваиваются).
 
 ## Вариант 2: глобально
@@ -38,7 +38,7 @@
   "mcp": {
     "ewb512": {
       "type": "local",
-      "command": ["python3", "/absolute/path/to/ewb_mcp/server.py"],
+      "command": ["python3", "/absolute/path/to/ewb_mcp/scripts/server.py"],
       "enabled": true,
       "environment": {
         "EWB_MCP_ALLOW_HOME": "1"
@@ -84,7 +84,7 @@
 ```bash
 printf '%s\n' \
   '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"check","version":"1"}}}' \
-  | python3 /absolute/path/to/ewb_mcp/server.py
+  | python3 /absolute/path/to/ewb_mcp/scripts/server.py
 ```
 
 В ответе должно быть `"name": "ewb512-schematic"`.

@@ -5,7 +5,7 @@
       "type": "stdio",
       "command": "python3",
       "args": [
-        "${PLUGIN_ROOT}/server.py"
+        "${PLUGIN_ROOT}/scripts/server.py"
       ],
       "cwd": "${PLUGIN_ROOT}",
       "env": {

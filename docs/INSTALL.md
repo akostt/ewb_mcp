@@ -1,6 +1,6 @@
 # Установка EWB 5.12 MCP
 
-Один и тот же сервер `server.py` устанавливается во все поддерживаемые
+Один и тот же сервер `scripts/server.py` устанавливается во все поддерживаемые
 AI-среды. Различаются только формат манифеста и команда установки. Никакие
 пакеты Python и сама Electronics Workbench не требуются.
 
@@ -16,7 +16,7 @@ export EWB_HOME="$HOME/Git/ewb_mcp"
 
 Команды CLI в разных сборках клиентов могут отличаться. Если команда не
 найдена, посмотрите `--help` у соответствующего клиента, установите плагин
-через его интерфейс или подключите `server.py` вручную по разделу
+через его интерфейс или подключите `scripts/server.py` вручную по разделу
 [Claude Desktop, Windsurf, Cline, Continue, Zed](#claude-desktop-windsurf-cline-continue-zed).
 Ручное подключение через stdio работает независимо от плагинной упаковки.
 
@@ -60,7 +60,7 @@ export EWB_HOME="$HOME/Git/ewb_mcp"
 cd "$EWB_HOME"
 printf '%s\n' \
   '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"check","version":"1"}}}' \
-  | python3 server.py
+  | python3 scripts/server.py
 ```
 
 В ответе должно быть `"serverInfo"` с именем `ewb512-schematic`.
@@ -174,7 +174,7 @@ codex plugin add ewb512-schematics@ewb512-plugins
     "ewb512": {
       "type": "stdio",
       "command": "python3",
-      "args": ["/absolute/path/to/ewb_mcp/server.py"],
+      "args": ["/absolute/path/to/ewb_mcp/scripts/server.py"],
       "env": {
         "EWB_MCP_ALLOW_HOME": "1"
       }
@@ -219,7 +219,7 @@ qwen extensions update ewb512-schematics
 ```
 
 Если ваша версия Qwen Code ещё не поддерживает `gemini-extension.json`,
-подключите `server.py` как обычный stdio MCP-сервер по разделу
+подключите `scripts/server.py` как обычный stdio MCP-сервер по разделу
 [Claude Desktop, Windsurf, Cline, Continue, Zed](#claude-desktop-windsurf-cline-continue-zed).
 
 ## OpenCode
@@ -237,7 +237,7 @@ qwen extensions update ewb512-schematics
   "mcp": {
     "ewb512": {
       "type": "local",
-      "command": ["python3", "/absolute/path/to/ewb_mcp/server.py"],
+      "command": ["python3", "/absolute/path/to/ewb_mcp/scripts/server.py"],
       "enabled": true,
       "environment": {
         "EWB_MCP_ALLOW_HOME": "1"
@@ -267,7 +267,7 @@ OpenCode. Затем попросите агента прочитать
 Или через Marketplace в интерфейсе Kimi Code. После публикации можно указать
 URL репозитория.
 
-Манифест запускает `server.py` из корня плагина и передаёт
+Манифест запускает `scripts/server.py` из корня плагина и передаёт
 `EWB_MCP_ALLOW_HOME=1`. Skill `ewb-schematics` загружается в начале сессии.
 
 ## Muse
@@ -275,7 +275,7 @@ URL репозитория.
 В пакете есть `.muse-plugin/plugin.json` и `.muse-plugin/marketplace.json`.
 Muse не передаёт `env` для MCP-серверов в манифесте, поэтому используется
 маленький launcher `scripts/ewb_mcp_launcher.py`, который включает доступ к
-домашнему каталогу и запускает `server.py`.
+домашнему каталогу и запускает `scripts/server.py`.
 
 ```bash
 cd "$EWB_HOME"
@@ -322,7 +322,7 @@ Antigravity читает MCP-серверы из `mcp_config.json` в корне
   "mcpServers": {
     "ewb512": {
       "command": "python3",
-      "args": ["/absolute/path/to/ewb_mcp/server.py"],
+      "args": ["/absolute/path/to/ewb_mcp/scripts/server.py"],
       "env": {
         "EWB_MCP_ALLOW_HOME": "1"
       }
@@ -396,7 +396,7 @@ copilot plugin install ewb512-schematics@ewb512-plugins
 
 В репозитории уже есть `.vscode/mcp.json`. Откройте каталог `ewb_mcp` в VS Code,
 затем откройте панель MCP Servers и запустите `ewb512`. Конфигурация использует
-`${workspaceFolder}/server.py`.
+`${workspaceFolder}/scripts/server.py`.
 
 Если VS Code открывает другой проект, скопируйте блок в `.vscode/mcp.json`
 этого проекта и замените путь на абсолютный:
@@ -407,7 +407,7 @@ copilot plugin install ewb512-schematics@ewb512-plugins
     "ewb512": {
       "type": "stdio",
       "command": "python3",
-      "args": ["/absolute/path/to/ewb_mcp/server.py"],
+      "args": ["/absolute/path/to/ewb_mcp/scripts/server.py"],
       "env": {
         "EWB_MCP_ALLOW_HOME": "1"
       }
@@ -448,7 +448,7 @@ Qoder требует другой манифест, используйте ру�
 ## Claude Desktop, Windsurf, Cline, Continue, Zed
 
 Эти клиенты не обязаны понимать плагинные манифесты, но все умеют запускать
-stdio MCP-сервер. Везде замените `/absolute/path/to/ewb_mcp/server.py` на свой
+stdio MCP-сервер. Везде замените `/absolute/path/to/ewb_mcp/scripts/server.py` на свой
 путь.
 
 ### Claude Desktop
@@ -463,7 +463,7 @@ stdio MCP-сервер. Везде замените `/absolute/path/to/ewb_mcp/s
   "mcpServers": {
     "ewb512": {
       "command": "python3",
-      "args": ["/absolute/path/to/ewb_mcp/server.py"],
+      "args": ["/absolute/path/to/ewb_mcp/scripts/server.py"],
       "env": {
         "EWB_MCP_ALLOW_HOME": "1"
       }
@@ -481,7 +481,7 @@ stdio MCP-сервер. Везде замените `/absolute/path/to/ewb_mcp/s
   "mcpServers": {
     "ewb512": {
       "command": "python3",
-      "args": ["/absolute/path/to/ewb_mcp/server.py"],
+      "args": ["/absolute/path/to/ewb_mcp/scripts/server.py"],
       "env": {
         "EWB_MCP_ALLOW_HOME": "1"
       }
@@ -499,7 +499,7 @@ stdio MCP-сервер. Везде замените `/absolute/path/to/ewb_mcp/s
   "mcpServers": {
     "ewb512": {
       "command": "python3",
-      "args": ["/absolute/path/to/ewb_mcp/server.py"],
+      "args": ["/absolute/path/to/ewb_mcp/scripts/server.py"],
       "env": {
         "EWB_MCP_ALLOW_HOME": "1"
       }
@@ -517,7 +517,7 @@ mcpServers:
   - name: ewb512
     command: python3
     args:
-      - /absolute/path/to/ewb_mcp/server.py
+      - /absolute/path/to/ewb_mcp/scripts/server.py
     env:
       EWB_MCP_ALLOW_HOME: "1"
 ```
@@ -532,7 +532,7 @@ mcpServers:
     "ewb512": {
       "command": {
         "path": "python3",
-        "args": ["/absolute/path/to/ewb_mcp/server.py"],
+        "args": ["/absolute/path/to/ewb_mcp/scripts/server.py"],
         "env": {
           "EWB_MCP_ALLOW_HOME": "1"
         }
@@ -552,7 +552,7 @@ mcpServers:
   "mcpServers": {
     "ewb512": {
       "command": "python3",
-      "args": ["/path/to/ewb_mcp/server.py"],
+      "args": ["/path/to/ewb_mcp/scripts/server.py"],
       "env": {
         "EWB_MCP_ALLOWED_DIRS": "/path/to/schematics:/tmp"
       }

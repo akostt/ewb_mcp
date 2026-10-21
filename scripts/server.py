@@ -5,9 +5,9 @@ Content-Length framing) and has no external dependencies.  It can read,
 render, validate, edit and create schematics while keeping the container and
 the Project_5_1 document in the format produced by EWB 5.12.
 
-Run directly:
+Run directly from the repository root:
 
-    python3 server.py
+    python3 scripts/server.py
 
 or register it in an MCP client with this command and the project directory as
 the working directory.
@@ -26,6 +26,7 @@ import traceback
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+ROOT = HERE.parent
 if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
@@ -61,7 +62,7 @@ def allowed_roots():
     global _ALLOWED_ROOTS
     if _ALLOWED_ROOTS is not None:
         return _ALLOWED_ROOTS
-    roots = [Path.cwd(), HERE, Path("/tmp"), Path("/private/tmp")]
+    roots = [Path.cwd(), ROOT, Path("/tmp"), Path("/private/tmp")]
     if os.environ.get("EWB_MCP_ALLOW_HOME", "").strip().lower() in (
             "1", "true", "yes", "on"):
         # Plugin installs often run with their own directory as the working

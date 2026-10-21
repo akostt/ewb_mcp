@@ -43,7 +43,7 @@ python3 -m unittest discover -s tests -v
 ```bash
 printf '%s\n' \
   '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"check","version":"1"}}}' \
-  | python3 server.py
+  | python3 scripts/server.py
 ```
 
 В ответе должно быть `"name": "ewb512-schematic"`.
@@ -93,7 +93,7 @@ printf '%s\n' \
 - `.vscode/mcp.json` — VS Code / GitHub Copilot в режиме агента.
 - `mcp_config.example.json` — универсальный пример для остальных клиентов.
 
-Все конфигурации указывают на один и тот же `server.py`. Дублирования кода
+Все конфигурации указывают на один и тот же `scripts/server.py`. Дублирования кода
 нет.
 
 ### Ручное подключение
@@ -105,7 +105,7 @@ printf '%s\n' \
   "mcpServers": {
     "ewb512": {
       "command": "python3",
-      "args": ["/path/to/ewb_mcp/server.py"],
+      "args": ["/path/to/ewb_mcp/scripts/server.py"],
       "env": {
         "EWB_MCP_ALLOW_HOME": "1"
       }
@@ -274,7 +274,7 @@ printf '%s\n' \
 
 ### Почему нет `blank_template.ewb`
 
-Пустой документ генерируется кодом в `ewb_blank.py`: `CircuitHeader`,
+Пустой документ генерируется кодом в `scripts/ewb_blank.py`: `CircuitHeader`,
 `Preferences`, пустые `Elements` и `Wires`. Остальные необязательные блоки
 EWB инициализирует своими значениями при открытии или сохранении. Поэтому в
 пакете нет файла-шаблона, созданного приложением.
@@ -402,12 +402,14 @@ CI в `.github/workflows/tests.yml` запускает набор на Python 3.
 
 ```text
 ewb_mcp/
-  server.py                          MCP-сервер и инструменты
-  ewb_codec.py                       контейнер .ewb, сжатие, checksum
-  ewb_doc.py                         разбор и запись Project_5_1
-  ewb_blank.py                       генерация пустого документа
-  ewb_parts.py                       каталог, выводы, значения, маршруты
-  ewb_svg.py                         SVG-превью
+  scripts/
+    server.py                        MCP-сервер и инструменты
+    ewb_codec.py                     контейнер .ewb, сжатие, checksum
+    ewb_doc.py                       разбор и запись Project_5_1
+    ewb_blank.py                     генерация пустого документа
+    ewb_parts.py                     каталог, выводы, значения, маршруты
+    ewb_svg.py                       SVG-превью
+    ewb_mcp_launcher.py              launcher для Muse
   plugin.json                        Agent Plugins 1.0.0
   mcp.json                           MCP для Agent Plugins / Codex / Hermes
   .mcp.json                          MCP для Claude Code
@@ -424,7 +426,6 @@ ewb_mcp/
   .agents/plugins/marketplace.json   маркетплейс Codex
   .vscode/mcp.json                   VS Code
   .opencode/INSTALL.md               инструкция для OpenCode
-  scripts/ewb_mcp_launcher.py        launcher для Muse
   skills/ewb-schematics/SKILL.md     инструкция для агента
   docs/                              установка, каталог, инструменты, формат, диагностика
   docs/CATALOG.md                    все 40 компонентов PartNum 0..39
@@ -447,5 +448,5 @@ ewb_mcp/
 диске и доступно серверу.
 
 Каталог можно переносить целиком. Плагинные конфигурации вычисляют путь к
-`server.py` от корня плагина, а примеры и бинарники лежат в `local/` внутри
+`scripts/server.py` от корня плагина, а примеры и бинарники лежат в `local/` внутри
 каталога.

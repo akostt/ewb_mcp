@@ -19,7 +19,7 @@
     "ewb512": {
       "command": "python3",
       "args": [
-        "./server.py"
+        "./scripts/server.py"
       ],
       "env": {
         "EWB_MCP_ALLOW_HOME": "1"

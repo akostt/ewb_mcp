@@ -3,7 +3,7 @@
     "ewb512": {
       "command": "python3",
       "args": [
-        "/path/to/ewb_mcp/server.py"
+        "/path/to/ewb_mcp/scripts/server.py"
       ],
       "env": {
         "EWB_MCP_ALLOWED_DIRS": "/path/to/schematics:/tmp"
