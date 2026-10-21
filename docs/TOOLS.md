@@ -200,7 +200,13 @@ SVG — приблизительная визуализация для пров�
 | `ref` | string или integer | нет | RefID; если не указан, генерируется. |
 | `rotation` | integer | нет | 0..7; по умолчанию — типовой для детали. |
 | `value` | number, string или array | нет | Значение; недостающие элементы берутся по умолчанию. |
+| `model_units` | integer array | нет | Коды `ModelUnits`; по умолчанию — каталожные. Длина массива задаёт длину поля. |
 | `model` | string | нет | `ModelName`, если у детали есть это поле. |
+
+`value` и `model_units` — разные вещи: EWB хранит ведущее число в единице,
+выбранной кодом `ModelUnits[0]`. Например, `{"part": "CAPACITOR", "value": 50,
+"model_units": [0]}` — это 50 µF, а не 50 F. Если файл-образец уже содержит
+нужные коды, передавайте их явно, чтобы сохранить единицы.
 
 Провод:
 
@@ -258,6 +264,7 @@ SVG — приблизительная визуализация для пров�
 | `ref` | string или integer | нет | RefID. |
 | `rotation` | integer | нет | 0..7. |
 | `value` | number, string или array | нет | Значение. |
+| `model_units` | integer array | нет | Коды `ModelUnits`; по умолчанию — каталожные. |
 | `model` | string | нет | `ModelName`. |
 
 Ответ: `path`, `bytes`, `element` (полное описание нового элемента),
@@ -307,11 +314,12 @@ SVG — приблизительная визуализация для пров�
 | `rotation` | integer | нет | Новый поворот 0..7. |
 | `refid` | string или integer | нет | Новый RefID. |
 | `value` | number, string или array | нет | Новое значение. |
+| `model_units` | integer array | нет | Новые коды `ModelUnits`. |
 | `model` | string | нет | Новое `ModelName`. |
 
 Ответ: `path`, `bytes`, `element`, `changes`, `warnings`.
 
-В `changes` может быть `position`, `refid`, `value`, `model` и
+В `changes` может быть `position`, `refid`, `value`, `model_units`, `model` и
 `rerouted_wires` — список проводов с флагом `routed`.
 
 Если для нового положения или поворота геометрия выводов неизвестна, маршрут

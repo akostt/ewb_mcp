@@ -36,7 +36,7 @@ import ewb_parts as parts          # noqa: E402  (also registers Document helper
 import ewb_svg as svgmod           # noqa: E402
 
 SERVER_NAME = "ewb512-schematic"
-SERVER_VERSION = "1.0.0"
+SERVER_VERSION = "1.0.1"
 DEFAULT_PROTOCOL = "2024-11-05"
 
 DIRECTION_CODES = {1, 2, 3, 4, 6, 8, 9, 12}
@@ -471,6 +471,16 @@ def as_value_list(value, name="value"):
     return as_number(value, name)
 
 
+def as_model_units(value, name="model_units"):
+    if value is None:
+        return None
+    if not isinstance(value, (list, tuple)):
+        value = [value]
+    if not value:
+        raise ToolError("%s must not be an empty list" % name)
+    return [as_int(v, "%s[%d]" % (name, i), 0) for i, v in enumerate(value)]
+
+
 def resolve_element(doc, index=None, ref=None):
     els = doc.elements()
     if index is None and ref is None:
@@ -569,6 +579,7 @@ def create_component(doc, spec, warnings):
         if ref in [e.refid for e in doc.elements()] and not (pn == 8 and ref == "0"):
             raise ToolError("reference %r is already used" % ref)
     value = as_value_list(spec.get("value"), "value")
+    model_units = as_model_units(spec.get("model_units"), "model_units")
     model = spec.get("model")
     if model is not None:
         model = str(model)
@@ -577,7 +588,8 @@ def create_component(doc, spec, warnings):
     if value is not None and parts.PARTS[pn][2] is None:
         raise ToolError("%s has no Value field" % parts.PARTS[pn][0])
     element = doc.add_component(pn, ref, x=x, y=y, rot=rot,
-                                value=value, model=model)
+                                value=value, model=model,
+                                model_units=model_units)
     if not element.pins:
         if parts.PINS.get(pn):
             warnings.append(
@@ -801,6 +813,7 @@ def tool_add_component(args):
         "y": args.get("y"),
         "rotation": args.get("rotation"),
         "value": args.get("value"),
+        "model_units": args.get("model_units"),
         "model": args.get("model"),
     }
     for key in ("part", "x", "y"):
@@ -873,6 +886,11 @@ def tool_update_component(args):
     if args.get("value") is not None:
         element.set_value(as_value_list(args["value"]))
         changes["value"] = element.value
+
+    if args.get("model_units") is not None:
+        units = as_model_units(args["model_units"])
+        element.set_model_units(units)
+        changes["model_units"] = element.model_units
 
     if args.get("model") is not None:
         element.set_model(str(args["model"]))
@@ -1092,6 +1110,9 @@ COMPONENT_ITEM = {
         "value": {"type": ["number", "string", "array"],
                   "items": {"type": "number"},
                   "description": "Value or value list; suffixes k/M/u/n/p are accepted."},
+        "model_units": {"type": "array", "items": {"type": "integer"},
+                        "minItems": 1,
+                        "description": "EWB ModelUnits codes; catalog defaults when omitted."},
         "model": {"type": "string"},
     },
     "required": ["part", "x", "y"],
@@ -1187,6 +1208,8 @@ TOOLS = [
             "y": {"type": "integer"},
             "rotation": {"type": "integer", "minimum": 0, "maximum": 7},
             "value": {"type": ["number", "string", "array"], "items": {"type": "number"}},
+            "model_units": {"type": "array", "items": {"type": "integer"},
+                            "minItems": 1},
             "model": {"type": "string"},
         }, required=["path", "part", "x", "y"]),
         "annotations": {"readOnlyHint": False},
@@ -1222,6 +1245,8 @@ TOOLS = [
             "rotation": {"type": "integer", "minimum": 0, "maximum": 7},
             "refid": {"type": ["string", "integer"]},
             "value": {"type": ["number", "string", "array"], "items": {"type": "number"}},
+            "model_units": {"type": "array", "items": {"type": "integer"},
+                            "minItems": 1},
             "model": {"type": "string"},
         }), required=["path"], any_of=[{"required": ["index"]}, {"required": ["ref"]}]),
         "annotations": {"readOnlyHint": False},

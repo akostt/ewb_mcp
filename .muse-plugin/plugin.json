@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "name": "ewb512-schematics",
   "displayName": "EWB 5.12 Schematics",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Read, validate, edit, render and create Electronics Workbench 5.x (.ewb) schematics.",
   "compat": {
     "source": "native",

@@ -21,6 +21,7 @@ import ewb_blank
 import ewb_codec as codec
 import ewb_doc as docmod
 import ewb_parts
+import ewb_svg
 import server
 
 
@@ -219,6 +220,48 @@ class ServerToolTests(unittest.TestCase):
         self.assertTrue(text.startswith("<?xml"))
         self.assertIn("<svg ", text)
         self.assertIn("</svg>", text)
+
+    def test_model_units_are_preserved(self):
+        path = self.root / "units.ewb"
+        server.tool_create_schematic({
+            "path": str(path),
+            "components": [
+                {"part": "CAPACITOR", "ref": "C1", "x": 100, "y": 100,
+                 "value": 50, "model_units": [0]},
+                {"part": "AC_VOLTAGE_SOURCE", "ref": "V1", "x": 300, "y": 100,
+                 "value": [35, 50, 0, 0, 1], "model_units": [3, 0, 0, 0, 0]},
+            ],
+        })
+        read = server.tool_read_schematic({"path": str(path)})
+        elements = {e["refid"]: e for e in read["elements"]}
+        self.assertEqual(elements["C1"]["model_units"], [0])
+        self.assertEqual(elements["V1"]["model_units"], [3, 0, 0, 0, 0])
+        server.tool_update_component({
+            "path": str(path), "ref": "C1", "model_units": [2, 0, 0],
+        })
+        read = server.tool_read_schematic({"path": str(path)})
+        elements = {e["refid"]: e for e in read["elements"]}
+        self.assertEqual(elements["C1"]["model_units"], [2, 0, 0])
+
+
+class ValueDisplayTests(unittest.TestCase):
+    class Element:
+        def __init__(self, partnum, value, model_units):
+            self.partnum = partnum
+            self.value = value
+            self.model_units = model_units
+
+    def test_model_units_select_engineering_unit(self):
+        cases = [
+            (self.Element(3, [50, 20, 1], [0]), "50µF"),
+            (self.Element(3, [4, 20, 1], [0]), "4µF"),
+            (self.Element(3, [0.5, 20, 1], [0]), "0.5µF"),
+            (self.Element(0, [35, 50, 0, 0, 1], [3, 0, 0, 0, 0]), "35V"),
+            (self.Element(13, [10000, 1], [2, 0]), "10V"),
+        ]
+        for element, expected in cases:
+            with self.subTest(expected=expected):
+                self.assertEqual(ewb_svg._display_value(element), expected)
 
 
 class ManifestTests(unittest.TestCase):

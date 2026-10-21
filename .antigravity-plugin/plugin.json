@@ -1,7 +1,7 @@
 {
   "name": "ewb512-schematics",
   "displayName": "EWB 5.12 Schematics",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Read, validate, edit, render and create Electronics Workbench 5.x (.ewb) schematics while preserving the native container and Project_5_1 document format.",
   "suggestedPrompts": [
     "Открой схему .ewb и покажи компоненты, выводы и связи",

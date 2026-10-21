@@ -44,6 +44,15 @@ _VALUE_UNITS = {
 _SI_STEPS = ((1e9, "G"), (1e6, "M"), (1e3, "k"), (1.0, ""),
              (1e-3, "m"), (1e-6, "µ"), (1e-9, "n"), (1e-12, "p"))
 
+# EWB keeps the leading Value in the unit selected by ModelUnits[0].  Only
+# combinations observed in application-produced files are mapped; unknown
+# codes keep the base-SI interpretation above.
+_MODEL_UNITS = {
+    0: {2: ("mV", 1e-3), 3: ("V", 1.0)},   # AC voltage source
+    3: {0: ("µF", 1e-6)},                   # capacitor
+    13: {2: ("mV", 1e-3)},                  # voltmeter
+}
+
 
 def _si(v, unit):
     try:
@@ -69,6 +78,15 @@ def _display_value(e):
     unit = _VALUE_UNITS.get(e.partnum)
     if unit is None or not e.value:
         return ""
+    units = e.model_units or []
+    spec = _MODEL_UNITS.get(e.partnum, {}).get(units[0] if units else None)
+    if spec is not None:
+        label, scale = spec
+        if label == "µF":
+            # Keep the engineering notation used on the schematic: 0.5 µF
+            # reads better than the auto-scaled 500 nF.
+            return _fmt(float(e.value[0])) + label
+        return _si(float(e.value[0]) * scale, unit)
     return _si(e.value[0], unit)
 
 

@@ -333,6 +333,15 @@ class Element:
         values = values[:len(cur)]
         self.block.set_field("Value", values)
 
+    def set_model_units(self, values):
+        if self.block.field_line("ModelUnits") is None:
+            raise ValueError("part %s has no ModelUnits field" % self.partnum)
+        if not isinstance(values, (list, tuple)):
+            values = [values]
+        if not values:
+            raise ValueError("ModelUnits must not be empty")
+        self.block.set_field("ModelUnits", list(values), count=len(values))
+
     def set_model(self, model):
         if self.block.field_line("ModelName") is None:
             raise ValueError("part %s has no ModelName field" % self.partnum)
@@ -566,7 +575,8 @@ def _common_block(elem_indent, refid):
     return b
 
 
-def make_component_block(doc, partnum, refid, x, y, rot=0, value=None, model=None):
+def make_component_block(doc, partnum, refid, x, y, rot=0, value=None, model=None,
+                         model_units=None):
     if partnum not in PARTS:
         raise ValueError("unsupported PartNum %r (supported: 0..39)" % partnum)
     name, ref, vdef, mu, mdef, desc = PARTS[partnum]
@@ -586,7 +596,11 @@ def make_component_block(doc, partnum, refid, x, y, rot=0, value=None, model=Non
             vals = [value] + defaults[1:]
         vals = vals[:vdef[0]]
         b.append_child(_field(ind + 2, "Value", "r", vals, vdef[0]))
-    b.append_child(_field(ind + 2, "ModelUnits", "i", list(mu[1]), mu[0]))
+    if model_units is None:
+        mu_values, mu_count = list(mu[1]), mu[0]
+    else:
+        mu_values, mu_count = list(model_units), len(model_units)
+    b.append_child(_field(ind + 2, "ModelUnits", "i", mu_values, mu_count))
     b.append_child(_common_block(ind, refid))
     if mdef is not None:
         m = mdef if model is None else str(model)
@@ -628,13 +642,14 @@ def next_refid(doc, partnum):
     return "%s%d" % (ref, max(used) + 1 if used else 1)
 
 
-def add_component(doc, partnum, refid=None, x=0, y=0, rot=None, value=None, model=None):
+def add_component(doc, partnum, refid=None, x=0, y=0, rot=None, value=None, model=None,
+                  model_units=None):
     partnum = int(partnum)
     if rot is None:
         rot = default_rot(partnum)
     if refid is None:
         refid = next_refid(doc, partnum)
-    blk = make_component_block(doc, partnum, refid, x, y, rot, value, model)
+    blk = make_component_block(doc, partnum, refid, x, y, rot, value, model, model_units)
     doc.elements_block.append_child(blk)
     return Element(doc, blk)
 

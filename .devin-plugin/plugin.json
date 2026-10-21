@@ -1,6 +1,6 @@
 {
   "name": "ewb512-schematics",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Read, validate, edit, render and create Electronics Workbench 5.x (.ewb) schematics.",
   "author": {
     "name": "EWB MCP contributors"
